@@ -1,5 +1,7 @@
+"use client";
+
 import React, { ReactNode } from "react";
-import { Layout as AntLayout, Menu, Avatar, Dropdown } from "antd";
+import { Layout as AntLayout, Menu, Avatar, Dropdown, Space } from "antd";
 import {
   BookOutlined,
   CalendarOutlined,
@@ -7,9 +9,12 @@ import {
   LogoutOutlined,
   HomeOutlined,
   SwapOutlined,
+  FileAddOutlined,
 } from "@ant-design/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useTranslation } from "../hooks/useTranslation";
 
 const { Header, Sider, Content } = AntLayout;
 
@@ -19,16 +24,17 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   const userMenuItems = [
     {
       key: "profile",
-      label: <Link href="/profile">个人资料</Link>,
+      label: <Link href="/profile">{t("nav.profile")}</Link>,
       icon: <UserOutlined />,
     },
     {
       key: "logout",
-      label: "退出登录",
+      label: t("nav.logout"),
       icon: <LogoutOutlined />,
     },
   ];
@@ -37,22 +43,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     {
       key: "/",
       icon: <HomeOutlined />,
-      label: <Link href="/">首页</Link>,
+      label: <Link href="/">{t("nav.home")}</Link>,
     },
     {
       key: "/courses",
       icon: <BookOutlined />,
-      label: <Link href="/courses">课程列表</Link>,
+      label: <Link href="/courses">{t("nav.courses")}</Link>,
     },
     {
       key: "/schedule",
       icon: <CalendarOutlined />,
-      label: <Link href="/schedule">我的课表</Link>,
+      label: <Link href="/schedule">{t("nav.schedule")}</Link>,
     },
     {
-      key: "/swap-requests",
+      key: "/my-requests",
       icon: <SwapOutlined />,
-      label: <Link href="/my-requests">换课申请</Link>,
+      label: <Link href="/my-requests">{t("nav.swapRequests")}</Link>,
+    },
+    {
+      key: "/course-request",
+      icon: <FileAddOutlined />,
+      label: <Link href="/course-request">{t("nav.courseRequests")}</Link>,
     },
   ];
 
@@ -65,20 +76,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <AntLayout style={{ minHeight: "100vh" }}>
       <Header className="flex items-center justify-between bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm px-6 h-16">
         <div className="flex items-center">
-          <h1 className="text-xl font-bold text-blue-600 dark:text-blue-400 m-0">
+          <h1 className="text-xl font-bold text-blue-600 dark:text-blue-400 m-0 mr-4">
             <Link
               href="/"
               className="hover:text-blue-700 dark:hover:text-blue-300 no-underline"
             >
-              课程选择系统
+              {t("home.title")}
             </Link>
           </h1>
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher size="small" />
+
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <div className="flex items-center gap-2 cursor-pointer">
-              <span className="hidden sm:inline">用户名</span>
+              <span className="hidden sm:inline text-gray-700 dark:text-gray-300">
+                Username
+              </span>
               <Avatar icon={<UserOutlined />} />
             </div>
           </Dropdown>
@@ -98,6 +113,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             selectedKeys={[pathname]}
             className="h-full py-4"
             items={menuItems}
+            style={{
+              background: "inherit",
+              borderRight: 0,
+            }}
           />
         </Sider>
 

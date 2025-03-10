@@ -1,12 +1,38 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
-import { Form, Select, Input, Button, Steps, Card, Alert, message } from "antd";
-import { Course, SwapStatus } from "../types";
-import { isTimeConflict } from "../utils/timeUtils";
+import {
+  Form,
+  Select,
+  Input,
+  Button,
+  Steps,
+  Card,
+  Alert,
+  message,
+  Progress,
+  Divider,
+  Typography,
+  Tag,
+  Tooltip,
+  Space,
+} from "antd";
+import {
+  InfoCircleOutlined,
+  ClockCircleOutlined,
+  SwapOutlined,
+  WarningOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
+import { Course } from "../types";
+import { isTimeConflict, formatSchedule } from "../utils/timeUtils";
+import { useTranslation } from "../hooks/useTranslation";
 import axios from "axios";
 
 const { Step } = Steps;
 const { Option } = Select;
 const { TextArea } = Input;
+const { Title, Text, Paragraph } = Typography;
 
 interface SwapRequestFormProps {
   targetCourse: Course;
@@ -21,11 +47,13 @@ const SwapRequestForm: React.FC<SwapRequestFormProps> = ({
   onSuccess,
   onCancel,
 }) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(false);
   const [timeConflict, setTimeConflict] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   // 检查时间冲突
   useEffect(() => {
@@ -56,6 +84,7 @@ const SwapRequestForm: React.FC<SwapRequestFormProps> = ({
   // 下一步
   const nextStep = async () => {
     try {
+      setSubmissionError(null);
       if (currentStep === 0) {
         // 验证第一步
         await form.validateFields(["originalCourseId"]);
@@ -80,7 +109,24 @@ const SwapRequestForm: React.FC<SwapRequestFormProps> = ({
     try {
       const values = await form.validateFields();
       setLoading(true);
+      setSubmissionError(null);
 
+      // 实际应用中应使用API
+      // 这里模拟API调用和响应
+      setTimeout(() => {
+        try {
+          // 模拟成功响应
+          message.success(t("swapRequest.successMessage"));
+          onSuccess();
+        } catch (error) {
+          setSubmissionError(t("common.error"));
+          message.error(t("common.error"));
+        } finally {
+          setLoading(false);
+        }
+      }, 1500);
+
+      /* 实际API调用代码
       const response = await axios.post("/api/swaps", {
         originalCourseId: values.originalCourseId,
         targetCourseId: targetCourse._id,
@@ -88,13 +134,16 @@ const SwapRequestForm: React.FC<SwapRequestFormProps> = ({
       });
 
       if (response.data.success) {
-        message.success("换课申请提交成功");
+        message.success(t('swapRequest.successMessage'));
         onSuccess();
       } else {
-        message.error(response.data.error || "提交失败，请重试");
+        setSubmissionError(response.data.error || t('common.error'));
+        message.error(response.data.error || t('common.error'));
       }
+      */
     } catch (error: any) {
-      message.error(error.response?.data?.error || "提交失败，请重试");
+      setSubmissionError(error.response?.data?.error || t("common.error"));
+      message.error(error.response?.data?.error || t("common.error"));
     } finally {
       setLoading(false);
     }
@@ -108,13 +157,22 @@ const SwapRequestForm: React.FC<SwapRequestFormProps> = ({
           <div>
             <Form.Item
               name="originalCourseId"
-              label="选择要替换的课程"
-              rules={[{ required: true, message: "请选择要替换的课程" }]}
+              label={t("swapRequest.selectCourse")}
+              rules={[
+                {
+                  required: true,
+                  message: t("swapRequest.validation.selectCourse"),
+                },
+              ]}
+              tooltip={t("swapRequest.steps.selectCourseDesc")}
             >
               <Select
-                placeholder="请选择课程"
+                placeholder={t("swapRequest.selectCoursePlaceholder")}
                 onChange={handleCourseSelect}
                 style={{ width: "100%" }}
+                suffixIcon={<SwapOutlined />}
+                showSearch
+                optionFilterProp="children"
               >
                 {enrolledCourses.map((course) => (
                   <Option key={course._id} value={course._id}>
@@ -125,25 +183,88 @@ const SwapRequestForm: React.FC<SwapRequestFormProps> = ({
             </Form.Item>
 
             {selectedCourse && (
-              <Card size="small" className="mt-4">
-                <p>
-                  <strong>课程名称:</strong> {selectedCourse.name}
-                </p>
-                <p>
-                  <strong>教师:</strong> {selectedCourse.teacher}
-                </p>
-                <p>
-                  <strong>地点:</strong> {selectedCourse.location}
-                </p>
+              <Card
+                size="small"
+                className="mt-4"
+                title={
+                  <div className="flex justify-between items-center">
+                    <span>{t("courseDetail.title")}</span>
+                    <Tag color="blue">
+                      {selectedCourse.credits} {t("courses.credits")}
+                    </Tag>
+                  </div>
+                }
+              >
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Text strong>{selectedCourse.name}</Text>
+                    <Text type="secondary">{selectedCourse.code}</Text>
+                  </div>
+                  <p>
+                    <strong>{t("courses.teacherInfo")}:</strong>{" "}
+                    {selectedCourse.teacher}
+                  </p>
+                  <p>
+                    <strong>{t("courses.location")}:</strong>{" "}
+                    {selectedCourse.location}
+                  </p>
+                  <p>
+                    <strong>{t("courses.schedule")}:</strong>
+                  </p>
+                  <ul className="list-disc pl-5">
+                    {selectedCourse.schedule.map((s, index) => (
+                      <li key={index}>{formatSchedule(s)}</li>
+                    ))}
+                  </ul>
+                </div>
               </Card>
             )}
 
+            <Divider />
+
+            <Card
+              title={
+                <Space>
+                  <span>{t("swapRequest.targetCourse")}</span>
+                  <Tag color="green">
+                    {targetCourse.credits} {t("courses.credits")}
+                  </Tag>
+                </Space>
+              }
+              size="small"
+              className="mt-4"
+            >
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Text strong>{targetCourse.name}</Text>
+                  <Text type="secondary">{targetCourse.code}</Text>
+                </div>
+                <p>
+                  <strong>{t("courses.teacherInfo")}:</strong>{" "}
+                  {targetCourse.teacher}
+                </p>
+                <p>
+                  <strong>{t("courses.location")}:</strong>{" "}
+                  {targetCourse.location}
+                </p>
+                <p>
+                  <strong>{t("courses.schedule")}:</strong>
+                </p>
+                <ul className="list-disc pl-5">
+                  {targetCourse.schedule.map((s, index) => (
+                    <li key={index}>{formatSchedule(s)}</li>
+                  ))}
+                </ul>
+              </div>
+            </Card>
+
             {timeConflict && (
               <Alert
-                message="时间冲突警告"
-                description="您选择的课程与目标课程时间存在冲突，请确认是否继续申请。"
+                message={t("swapRequest.timeConflict")}
+                description={t("swapRequest.timeConflictDesc")}
                 type="warning"
                 showIcon
+                icon={<ClockCircleOutlined />}
                 className="mt-4"
               />
             )}
@@ -152,16 +273,52 @@ const SwapRequestForm: React.FC<SwapRequestFormProps> = ({
       case 1:
         return (
           <div>
+            <Alert
+              message={
+                <Space>
+                  <InfoCircleOutlined />
+                  <span>{t("courseDetail.swapNotice")}</span>
+                </Space>
+              }
+              description={
+                <ul className="list-disc pl-5 mt-2">
+                  {t("courseDetail.swapNoticeItems").map(
+                    (item: string, index: number) => (
+                      <li key={index}>{item}</li>
+                    ),
+                  )}
+                </ul>
+              }
+              type="info"
+              className="mb-6"
+            />
+
             <Form.Item
               name="reason"
-              label="换课理由"
+              label={t("swapRequest.reason")}
               rules={[
-                { required: true, message: "请填写换课理由" },
-                { min: 10, message: "理由不能少于10个字符" },
+                { required: true, message: t("swapRequest.reasonRequired") },
+                { min: 10, message: t("swapRequest.reasonMinLength") },
               ]}
+              tooltip={t("swapRequest.steps.fillReasonDesc")}
             >
-              <TextArea rows={6} placeholder="请详细说明您换课的原因..." />
+              <TextArea
+                rows={6}
+                placeholder={t("swapRequest.reasonPlaceholder")}
+                showCount
+                maxLength={500}
+              />
             </Form.Item>
+
+            {submissionError && (
+              <Alert
+                message={t("common.error")}
+                description={submissionError}
+                type="error"
+                showIcon
+                className="mt-4"
+              />
+            )}
           </div>
         );
       default:
@@ -172,38 +329,60 @@ const SwapRequestForm: React.FC<SwapRequestFormProps> = ({
   return (
     <div className="p-4">
       <Steps current={currentStep} className="mb-8">
-        <Step title="选择课程" description="选择要替换的课程" />
-        <Step title="填写理由" description="说明换课原因" />
-        <Step title="完成" description="提交申请" />
+        <Step
+          title={t("swapRequest.steps.selectCourse")}
+          description={t("swapRequest.steps.selectCourseDesc")}
+          icon={currentStep === 0 ? <SwapOutlined /> : undefined}
+        />
+        <Step
+          title={t("swapRequest.steps.fillReason")}
+          description={t("swapRequest.steps.fillReasonDesc")}
+          icon={currentStep === 1 ? <InfoCircleOutlined /> : undefined}
+        />
+        <Step
+          title={t("swapRequest.steps.submitRequest")}
+          description={t("swapRequest.steps.submitRequestDesc")}
+          icon={<CheckCircleOutlined />}
+        />
       </Steps>
+
+      <Progress
+        percent={(currentStep + 1) * 33}
+        showInfo={false}
+        className="mb-8"
+        strokeColor="#1890ff"
+      />
 
       <Form
         form={form}
         layout="vertical"
         initialValues={{ targetCourseId: targetCourse._id }}
+        scrollToFirstError
       >
-        <div className="mb-4">
-          <Alert
-            message={`目标课程: ${targetCourse.name} - ${targetCourse.teacher}`}
-            type="info"
-            showIcon
-          />
-        </div>
+        <Title level={4} className="mb-6">
+          {t("swapRequest.title")}
+        </Title>
 
         {renderStepContent()}
 
         <div className="flex justify-end mt-6 space-x-2">
-          {currentStep > 0 && <Button onClick={prevStep}>上一步</Button>}
+          {currentStep > 0 && (
+            <Button onClick={prevStep} disabled={loading}>
+              {t("common.back")}
+            </Button>
+          )}
           {currentStep < 1 ? (
             <Button type="primary" onClick={nextStep}>
-              下一步
+              {t("common.submit")}
             </Button>
           ) : (
             <Button type="primary" onClick={nextStep} loading={loading}>
-              提交申请
+              {t("swapRequest.steps.submitRequest")}
             </Button>
           )}
-          <Button onClick={onCancel}>取消</Button>
+          <Button onClick={onCancel} disabled={loading}>
+            {t("common.cancel")}
+          </Button>
         </div>
       </Form>
     </div>

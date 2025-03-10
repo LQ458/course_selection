@@ -27,6 +27,27 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Dark mode text colors */
+.dark\:text-white {
+  color: white !important;
+}
+
+.dark\:text-gray-100 {
+  color: #f3f4f6 !important;
+}
+
+.dark\:text-gray-200 {
+  color: #e5e7eb !important;
+}
+
+.dark\:text-gray-300 {
+  color: #d1d5db !important;
+}
+
+.dark\:text-gray-400 {
+  color: #9ca3af !important;
+}
+
 /* 用于Ant Design组件的自定义样式 */
 .ant-btn-primary {
   background-color: hsl(var(--primary));
@@ -34,4 +55,23 @@ body {
 
 .ant-layout {
   background: hsl(var(--background));
+}
+
+/* Fix for dark mode menu items */
+.dark .ant-menu {
+  background-color: transparent;
+  color: #e5e7eb;
+}
+
+.dark .ant-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .ant-menu-item-selected {
+  background-color: rgba(66, 153, 225, 0.2) !important;
+  color: #90cdf4 !important;
+}
+
+.dark .ant-menu-item-active {
+  color: #90cdf4 !important;
 }
