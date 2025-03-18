@@ -18,6 +18,12 @@ const en = {
     back: "Back",
     close: "Close",
     all: "All",
+    darkMode: "Dark Mode",
+    lightMode: "Light Mode",
+    switchToDark: "Switch to dark mode",
+    switchToLight: "Switch to light mode",
+    theme: "Theme",
+    systemPreference: "System Preference",
   },
 
   // Navigation
@@ -47,25 +53,79 @@ const en = {
     haveAccount: "Already have an account?",
     loginSuccess: "Login successful",
     loginError: "Login failed, please check your username and password",
+    name: "Name",
+    email: "Email",
+    studentId: "Student ID",
+    confirmPassword: "Confirm Password",
   },
 
   // Home page
   home: {
     title: "Course Selection System",
-    subtitle: "Your Academic Journey Starts Here",
+    subtitle: "International High School AP Course Selection Platform",
     description:
       "An efficient and convenient online course selection platform. Easily find and register for courses, manage your learning plan.",
     browseCourses: "Browse Courses",
     loginSystem: "Login",
+    registerNow: "Register Now",
     featureRichResources: "Rich Course Resources",
     featureResourcesDesc:
-      "Offering diverse course options to meet different learning needs and interests.",
-    featureFlexibleSelection: "Flexible Selection",
+      "Provides diversified course options to meet different learning needs and interests.",
+    featureFlexibleSelection: "Flexible Course Selection",
     featureFlexibleDesc:
-      "Support for course search, filtering, and comparison to help you make the best choice.",
+      "Support for course search, filtering, and comparison, helping you make the best choice.",
     featureScheduleManagement: "Smart Schedule Management",
     featureScheduleDesc:
-      "Automated course arrangement, avoiding time conflicts, optimizing your learning plan.",
+      "Automated course arrangement, avoiding time conflicts, optimizing your study plan.",
+    totalCourses: "Total Courses",
+    apCourses: "AP Courses",
+    honorsCourses: "Honors Courses",
+    generalCourses: "General Courses",
+    electiveCourses: "Elective Courses",
+    learnMore: "Learn More",
+    featuredCourses: "Featured Courses",
+    internationalEducation: "International High School Education Features",
+    systemFeatures: "System Features",
+    scheduleFeature: "Smart Scheduling",
+    scheduleFeatureDesc:
+      "Automatically analyze course times, avoid conflicts, and reasonably arrange your schedule",
+    courseFeature: "Course Management",
+    courseFeatureDesc:
+      "Comprehensive course search, filtering, and comparison functions to help you find the most suitable courses",
+    requestFeature: "Course Application",
+    requestFeatureDesc:
+      "Convenient course change and application process, flexibly adjust your learning plan",
+  },
+
+  // Profile
+  profile: {
+    title: "Profile",
+    subtitle: "View and edit your personal information",
+    basicInfo: "Basic Information",
+    academicInfo: "Academic Information",
+    accountSettings: "Account Settings",
+    personalDetails: "Personal Details",
+    updateProfile: "Update Profile",
+    updatePassword: "Update Password",
+    currentPassword: "Current Password",
+    newPassword: "New Password",
+    confirmNewPassword: "Confirm New Password",
+    saveChanges: "Save Changes",
+    nameLabel: "Name",
+    emailLabel: "Email",
+    usernameLabel: "Username",
+    studentIdLabel: "Student ID",
+    departmentLabel: "Department",
+    gradeLevel: "Grade Level",
+    programLabel: "Program",
+    enrollmentDate: "Enrollment Date",
+    avatar: "Profile Picture",
+    uploadAvatar: "Upload Avatar",
+    removeAvatar: "Remove Avatar",
+    updateSuccess: "Profile updated successfully",
+    passwordSuccess: "Password updated successfully",
+    passwordError:
+      "Failed to update password, please check your current password",
   },
 
   // Course listing
@@ -87,6 +147,14 @@ const en = {
     swapable: "Swapable",
     notSwapable: "Not Swapable",
     almostFull: "Almost full, only {count} seats left",
+    courseType: "Course Type",
+    ap: "Advanced Placement",
+    honors: "Honors",
+    general: "General",
+    elective: "Elective",
+    prerequisites: "Prerequisites",
+    gradeLevel: "Grade Level",
+    semester: "Semester",
   },
 
   // Course detail
@@ -106,6 +174,13 @@ const en = {
       "If a request is rejected, you must submit a new request",
       "The target course must have available seats to qualify for a swap",
     ],
+    courseType: "Course Type",
+    courseLevel: "Course Level",
+    apCredit: "AP Credit",
+    honorCredit: "Honors Credit",
+    gradePoints: "Grade Points",
+    collegeBoardInfo: "College Board Information",
+    examDate: "Exam Date",
   },
 
   // Swap request
@@ -186,6 +261,13 @@ const en = {
     timeSlot: "Time / Date",
     noCourses: "No courses scheduled",
     courseDetails: "Course Details",
+    monday: "Monday",
+    tuesday: "Tuesday",
+    wednesday: "Wednesday",
+    thursday: "Thursday",
+    friday: "Friday",
+    saturday: "Saturday",
+    sunday: "Sunday",
   },
 
   // Admin
@@ -238,6 +320,35 @@ const en = {
       "November",
       "December",
     ],
+  },
+
+  // Education system
+  education: {
+    ap: "Advanced Placement",
+    honors: "Honors",
+    general: "General",
+    elective: "Elective",
+    gradeLevel: {
+      freshman: "Freshman (Grade 9)",
+      sophomore: "Sophomore (Grade 10)",
+      junior: "Junior (Grade 11)",
+      senior: "Senior (Grade 12)",
+    },
+    creditSystem: {
+      gpa: "GPA",
+      weightedGpa: "Weighted GPA",
+      apWeight: "AP Course Weight",
+      honorsWeight: "Honors Course Weight",
+    },
+    apProgram: "AP Course System",
+    apProgramDesc:
+      "College Board-certified college preparatory courses that earn college credits and enhance college application competitiveness",
+    honorsProgram: "Honors Course System",
+    honorsProgramDesc:
+      "Challenging advanced courses designed for academic elite students, strengthening core subject capabilities",
+    electiveProgram: "Elective Course System",
+    electiveProgramDesc:
+      "Rich and diverse elective courses to explore personal interests, expand knowledge, and discover potential",
   },
 };
 

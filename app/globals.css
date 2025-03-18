@@ -6,72 +6,314 @@
 }
 
 :root {
+  /* 基础颜色 */
   --background: 0 0% 100%;
-  --foreground: 0 0% 9%;
+  --foreground: 222 47% 11%;
   --primary: 215 100% 50%;
   --primary-foreground: 0 0% 100%;
+
+  /* 补充颜色 */
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222 47% 11.2%;
+  --accent: 210 40% 90%;
+  --accent-foreground: 222 47% 11.2%;
+
+  /* 状态颜色 */
+  --success: 142 76% 36%;
+  --error: 0 84% 60%;
+  --warning: 38 92% 50%;
+  --info: 217 91% 60%;
+
+  /* 卡片和边框 */
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --border: 214.3 31.8% 91.4%;
+
+  /* 输入框 */
+  --input: 214.3 31.8% 91.4%;
+  --input-foreground: 222 47% 11%;
+
+  /* 按钮和分隔线 */
+  --button: 215 100% 50%;
+  --button-foreground: 0 0% 100%;
+  --ring: 215 100% 50%;
+  --divider: 214.3 31.8% 91.4%;
+
+  /* 导航和菜单 */
+  --navbar: 0 0% 100%;
+  --navbar-foreground: 222 47% 11%;
+  --menu: 0 0% 100%;
+  --menu-foreground: 222 47% 11%;
+  --menu-hover: 210 40% 96.1%;
+  --menu-active: 215 100% 95%;
+  --menu-active-foreground: 215 100% 50%;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 93%;
+    /* 基础颜色 */
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
     --primary: 215 100% 60%;
     --primary-foreground: 0 0% 100%;
+
+    /* 补充颜色 */
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 217 19% 27%;
+    --accent-foreground: 210 40% 98%;
+
+    /* 状态颜色 */
+    --success: 142 70% 45%;
+    --error: 0 70% 60%;
+    --warning: 38 90% 55%;
+    --info: 214 80% 60%;
+
+    /* 卡片和边框 */
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --border: 217 19% 27%;
+
+    /* 输入框 */
+    --input: 217 19% 27%;
+    --input-foreground: 210 40% 98%;
+
+    /* 按钮和分隔线 */
+    --button: 215 100% 60%;
+    --button-foreground: 0 0% 100%;
+    --ring: 215 100% 60%;
+    --divider: 217 19% 27%;
+
+    /* 导航和菜单 */
+    --navbar: 222 47% 11%;
+    --navbar-foreground: 210 40% 98%;
+    --menu: 222 47% 11%;
+    --menu-foreground: 210 40% 98%;
+    --menu-hover: 217 19% 27%;
+    --menu-active: 215 100% 20%;
+    --menu-active-foreground: 215 100% 60%;
   }
 }
 
 body {
+  background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  background: hsl(var(--background));
-  font-family: Arial, Helvetica, sans-serif;
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  margin: 0;
 }
 
-/* Dark mode text colors */
+/* 文本颜色类 */
+.text-primary {
+  color: hsl(var(--primary));
+}
+
+.text-secondary {
+  color: hsl(var(--secondary-foreground));
+}
+
+.text-accent {
+  color: hsl(var(--accent-foreground));
+}
+
+.text-success {
+  color: hsl(var(--success));
+}
+
+.text-error {
+  color: hsl(var(--error));
+}
+
+.text-warning {
+  color: hsl(var(--warning));
+}
+
+.text-info {
+  color: hsl(var(--info));
+}
+
+/* 深色模式文本颜色 */
+.dark .text-gray-100,
+.dark .text-gray-200,
+.dark .text-gray-300,
+.dark .text-gray-400,
+.dark .text-gray-500 {
+  color: hsl(var(--foreground));
+}
+
 .dark\:text-white {
-  color: white !important;
+  color: hsl(var(--foreground));
 }
 
 .dark\:text-gray-100 {
-  color: #f3f4f6 !important;
+  color: hsl(var(--foreground));
 }
 
 .dark\:text-gray-200 {
-  color: #e5e7eb !important;
+  color: hsl(var(--foreground) / 0.9);
 }
 
 .dark\:text-gray-300 {
-  color: #d1d5db !important;
+  color: hsl(var(--foreground) / 0.8);
 }
 
 .dark\:text-gray-400 {
-  color: #9ca3af !important;
+  color: hsl(var(--foreground) / 0.7);
 }
 
-/* 用于Ant Design组件的自定义样式 */
+/* Ant Design 组件样式 */
 .ant-btn-primary {
   background-color: hsl(var(--primary));
+  border-color: hsl(var(--primary));
 }
 
 .ant-layout {
-  background: hsl(var(--background));
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
-/* Fix for dark mode menu items */
+/* 深色模式下的菜单 */
 .dark .ant-menu {
-  background-color: transparent;
-  color: #e5e7eb;
+  background-color: hsl(var(--menu));
+  color: hsl(var(--menu-foreground));
 }
 
 .dark .ant-menu-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: hsl(var(--menu-hover));
 }
 
 .dark .ant-menu-item-selected {
-  background-color: rgba(66, 153, 225, 0.2) !important;
-  color: #90cdf4 !important;
+  background-color: hsl(var(--menu-active));
+  color: hsl(var(--menu-active-foreground));
 }
 
 .dark .ant-menu-item-active {
-  color: #90cdf4 !important;
+  color: hsl(var(--menu-active-foreground));
+}
+
+/* 表格样式 */
+.schedule-table th {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.dark .schedule-table th {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.schedule-table td {
+  border-color: hsl(var(--border));
+}
+
+/* 课程卡片样式 */
+.course-card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.dark .course-card:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* 课程类型标签 */
+.ap-tag {
+  background-color: #f44336;
+  color: white;
+  border: none;
+}
+
+.honors-tag {
+  background-color: #9c27b0;
+  color: white;
+  border: none;
+}
+
+.general-tag {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+}
+
+.elective-tag {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+
+.dark .ap-tag,
+.dark .honors-tag,
+.dark .general-tag,
+.dark .elective-tag {
+  opacity: 0.9;
+}
+
+/* Ant Design 卡片样式覆盖 */
+.dark .ant-card {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-color: hsl(var(--border));
+}
+
+.dark .ant-card-head {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-color: hsl(var(--border));
+}
+
+.dark .ant-statistic-title {
+  color: hsl(var(--card-foreground) / 0.8);
+}
+
+.dark .ant-statistic-content {
+  color: hsl(var(--card-foreground));
+}
+
+/* Ant Design 按钮样式覆盖 */
+.dark .ant-btn {
+  border-color: hsl(var(--border));
+}
+
+.dark .ant-btn-primary {
+  background-color: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+}
+
+.dark .ant-btn-default {
+  background-color: transparent;
+  color: hsl(var(--foreground));
+}
+
+/* Ant Design 表单样式覆盖 */
+.dark .ant-input,
+.dark .ant-select-selector,
+.dark .ant-input-number,
+.dark .ant-picker {
+  background-color: hsl(var(--input));
+  color: hsl(var(--input-foreground));
+  border-color: hsl(var(--border));
+}
+
+.dark .ant-select-selection-item {
+  color: hsl(var(--input-foreground));
+}
+
+/* Ant Design 下拉菜单样式覆盖 */
+.dark .ant-dropdown-menu {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-color: hsl(var(--border));
+}
+
+.dark .ant-dropdown-menu-item:hover {
+  background-color: hsl(var(--menu-hover));
 }

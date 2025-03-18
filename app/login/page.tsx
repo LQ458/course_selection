@@ -10,12 +10,23 @@ import {
   Divider,
   message,
   Checkbox,
+  Tabs,
+  Row,
+  Col,
 } from "antd";
-import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  LockOutlined,
+  MailOutlined,
+  IdcardOutlined,
+  BankOutlined,
+} from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 const { Title, Text } = Typography;
+const { TabPane } = Tabs;
 
 interface LoginFormValues {
   username: string;
@@ -23,27 +34,86 @@ interface LoginFormValues {
   remember: boolean;
 }
 
+interface RegisterFormValues {
+  name: string;
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+  studentId?: string;
+}
+
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("login");
   const router = useRouter();
 
   const handleLogin = async (values: LoginFormValues) => {
     setLoading(true);
 
     try {
-      // 模拟登录API调用
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const result = await signIn("credentials", {
+        username: values.username,
+        password: values.password,
+        redirect: false,
+      });
 
-      // 简单的角色判断（实际应用中应该由后端决定）
-      if (values.username.includes("admin")) {
-        router.push("/admin/swap-requests");
-      } else {
-        router.push("/courses");
+      if (result?.error) {
+        message.error("登录失败，请检查用户名和密码");
+        return;
       }
 
       message.success("登录成功");
+
+      // 根据用户角色重定向到不同页面
+      // 这里假设 NextAuth.js 会在 URL 中添加 callbackUrl 参数
+      // 如果没有，则默认重定向到课程页面
+      router.push("/courses");
     } catch (error) {
-      message.error("登录失败，请检查用户名和密码");
+      message.error("登录失败，请稍后再试");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (values: RegisterFormValues) => {
+    setLoading(true);
+
+    try {
+      // 验证密码确认
+      if (values.password !== values.confirmPassword) {
+        message.error("两次输入的密码不一致");
+        setLoading(false);
+        return;
+      }
+
+      // 调用注册 API
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          username: values.username,
+          password: values.password,
+          studentId: values.studentId,
+          role: "student", // 默认注册为学生角色
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "注册失败");
+      }
+
+      message.success("注册成功，请登录");
+      setActiveTab("login");
+    } catch (error: any) {
+      message.error(error.message || "注册失败，请稍后再试");
       console.error(error);
     } finally {
       setLoading(false);
@@ -58,81 +128,190 @@ const LoginPage = () => {
             课程选择系统
           </Title>
           <Text className="text-gray-500 dark:text-gray-400">
-            欢迎回来，请登录您的账号
+            欢迎使用课程选择系统
           </Text>
         </div>
 
-        <Form
-          name="login"
-          initialValues={{ remember: true }}
-          onFinish={handleLogin}
-          layout="vertical"
-          requiredMark={false}
-        >
-          <Form.Item
-            name="username"
-            label="用户名"
-            rules={[{ required: true, message: "请输入用户名" }]}
-          >
-            <Input
-              prefix={<UserOutlined className="text-gray-400" />}
-              placeholder="请输入用户名"
-              size="large"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="password"
-            label="密码"
-            rules={[{ required: true, message: "请输入密码" }]}
-          >
-            <Input.Password
-              prefix={<LockOutlined className="text-gray-400" />}
-              placeholder="请输入密码"
-              size="large"
-            />
-          </Form.Item>
-
-          <Form.Item>
-            <div className="flex justify-between items-center">
-              <Form.Item name="remember" valuePropName="checked" noStyle>
-                <Checkbox>记住我</Checkbox>
-              </Form.Item>
-              <Link
-                href="/forgot-password"
-                className="text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                忘记密码?
-              </Link>
-            </div>
-          </Form.Item>
-
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="w-full"
-              size="large"
-              loading={loading}
+        <Tabs activeKey={activeTab} onChange={setActiveTab} centered>
+          <TabPane tab="登录" key="login">
+            <Form
+              name="login"
+              initialValues={{ remember: true }}
+              onFinish={handleLogin}
+              layout="vertical"
+              requiredMark={false}
             >
-              登录
-            </Button>
-          </Form.Item>
-        </Form>
+              <Form.Item
+                name="username"
+                label="用户名"
+                rules={[{ required: true, message: "请输入用户名" }]}
+              >
+                <Input
+                  prefix={<UserOutlined className="text-gray-400" />}
+                  placeholder="请输入用户名"
+                  size="large"
+                />
+              </Form.Item>
 
-        <Divider plain>
-          <Text className="text-gray-400">或者</Text>
-        </Divider>
+              <Form.Item
+                name="password"
+                label="密码"
+                rules={[{ required: true, message: "请输入密码" }]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-gray-400" />}
+                  placeholder="请输入密码"
+                  size="large"
+                />
+              </Form.Item>
 
-        <div className="text-center">
-          <Text className="text-gray-500 dark:text-gray-400">还没有账号?</Text>
-          <Link
-            href="/register"
-            className="text-blue-600 dark:text-blue-400 hover:underline ml-1"
-          >
-            注册账号
-          </Link>
-        </div>
+              <Form.Item>
+                <div className="flex justify-between items-center">
+                  <Form.Item name="remember" valuePropName="checked" noStyle>
+                    <Checkbox>记住我</Checkbox>
+                  </Form.Item>
+                  <Link
+                    href="/forgot-password"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    忘记密码?
+                  </Link>
+                </div>
+              </Form.Item>
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="w-full"
+                  size="large"
+                  loading={loading}
+                >
+                  登录
+                </Button>
+              </Form.Item>
+            </Form>
+          </TabPane>
+
+          <TabPane tab="注册" key="register">
+            <Form
+              name="register"
+              onFinish={handleRegister}
+              layout="vertical"
+              requiredMark={false}
+            >
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="name"
+                    label="姓名"
+                    rules={[{ required: true, message: "请输入姓名" }]}
+                  >
+                    <Input
+                      prefix={<UserOutlined className="text-gray-400" />}
+                      placeholder="请输入姓名"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="studentId"
+                    label="学号"
+                    rules={[{ required: true, message: "请输入学号" }]}
+                  >
+                    <Input
+                      prefix={<IdcardOutlined className="text-gray-400" />}
+                      placeholder="请输入学号"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item
+                name="email"
+                label="邮箱"
+                rules={[
+                  { required: true, message: "请输入邮箱" },
+                  { type: "email", message: "请输入有效的邮箱地址" },
+                ]}
+              >
+                <Input
+                  prefix={<MailOutlined className="text-gray-400" />}
+                  placeholder="请输入邮箱"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="username"
+                label="用户名"
+                rules={[
+                  { required: true, message: "请输入用户名" },
+                  { min: 3, message: "用户名至少需要3个字符" },
+                ]}
+              >
+                <Input
+                  prefix={<UserOutlined className="text-gray-400" />}
+                  placeholder="请输入用户名"
+                />
+              </Form.Item>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="password"
+                    label="密码"
+                    rules={[
+                      { required: true, message: "请输入密码" },
+                      { min: 6, message: "密码至少需要6个字符" },
+                    ]}
+                  >
+                    <Input.Password
+                      prefix={<LockOutlined className="text-gray-400" />}
+                      placeholder="请输入密码"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="confirmPassword"
+                    label="确认密码"
+                    dependencies={["password"]}
+                    rules={[
+                      { required: true, message: "请确认密码" },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue("password") === value) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(
+                            new Error("两次输入的密码不一致"),
+                          );
+                        },
+                      }),
+                    ]}
+                  >
+                    <Input.Password
+                      prefix={<LockOutlined className="text-gray-400" />}
+                      placeholder="请确认密码"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="w-full"
+                  size="large"
+                  loading={loading}
+                >
+                  注册
+                </Button>
+              </Form.Item>
+            </Form>
+          </TabPane>
+        </Tabs>
       </Card>
     </div>
   );

@@ -18,6 +18,12 @@ const zh = {
     back: "返回",
     close: "关闭",
     all: "全部",
+    darkMode: "深色模式",
+    lightMode: "浅色模式",
+    switchToDark: "切换到深色模式",
+    switchToLight: "切换到浅色模式",
+    theme: "主题",
+    systemPreference: "跟随系统",
   },
 
   // 导航
@@ -47,22 +53,72 @@ const zh = {
     haveAccount: "已有账号?",
     loginSuccess: "登录成功",
     loginError: "登录失败，请检查用户名和密码",
+    name: "姓名",
+    email: "邮箱",
+    studentId: "学号",
+    confirmPassword: "确认密码",
   },
 
   // 首页
   home: {
     title: "课程选择系统",
-    subtitle: "Course Selection System",
+    subtitle: "国际高中AP课程选择平台",
     description:
       "高效、便捷的在线课程选择平台。轻松查找和注册课程，管理您的学习计划。",
     browseCourses: "浏览课程",
     loginSystem: "登录系统",
+    registerNow: "立即注册",
     featureRichResources: "丰富的课程资源",
     featureResourcesDesc: "提供多样化的课程选择，满足不同学习需求和兴趣方向。",
     featureFlexibleSelection: "灵活的选课方式",
     featureFlexibleDesc: "支持课程搜索、筛选和比较，让您做出最佳选择。",
     featureScheduleManagement: "智能课表管理",
     featureScheduleDesc: "自动化课程安排，避免时间冲突，优化您的学习计划。",
+    totalCourses: "总课程数",
+    apCourses: "AP课程",
+    honorsCourses: "荣誉课程",
+    generalCourses: "普通课程",
+    electiveCourses: "选修课程",
+    learnMore: "了解更多",
+    featuredCourses: "特色课程",
+    internationalEducation: "国际高中教育特色",
+    systemFeatures: "系统功能",
+    scheduleFeature: "智能排课",
+    scheduleFeatureDesc: "自动分析课程时间，避免冲突，合理安排您的课表",
+    courseFeature: "课程管理",
+    courseFeatureDesc: "全面的课程搜索、筛选和比较功能，帮您找到最适合的课程",
+    requestFeature: "课程申请",
+    requestFeatureDesc: "便捷的课程变更和申请流程，灵活调整您的学习计划",
+  },
+
+  // 个人资料
+  profile: {
+    title: "个人资料",
+    subtitle: "查看和编辑您的个人信息",
+    basicInfo: "基本信息",
+    academicInfo: "学术信息",
+    accountSettings: "账户设置",
+    personalDetails: "个人详情",
+    updateProfile: "更新资料",
+    updatePassword: "修改密码",
+    currentPassword: "当前密码",
+    newPassword: "新密码",
+    confirmNewPassword: "确认新密码",
+    saveChanges: "保存更改",
+    nameLabel: "姓名",
+    emailLabel: "邮箱",
+    usernameLabel: "用户名",
+    studentIdLabel: "学号",
+    departmentLabel: "院系",
+    gradeLevel: "年级",
+    programLabel: "课程体系",
+    enrollmentDate: "入学日期",
+    avatar: "头像",
+    uploadAvatar: "上传头像",
+    removeAvatar: "移除头像",
+    updateSuccess: "资料更新成功",
+    passwordSuccess: "密码修改成功",
+    passwordError: "密码修改失败，请检查当前密码",
   },
 
   // 课程列表
@@ -84,6 +140,14 @@ const zh = {
     swapable: "可换课",
     notSwapable: "不可换",
     almostFull: "即将满员，仅剩{count}个名额",
+    courseType: "课程类型",
+    ap: "AP课程",
+    honors: "荣誉课程",
+    general: "普通课程",
+    elective: "选修课程",
+    prerequisites: "先修课程",
+    gradeLevel: "适用年级",
+    semester: "学期",
   },
 
   // 课程详情
@@ -103,6 +167,13 @@ const zh = {
       "换课申请一旦被拒绝，需重新提交申请",
       "目标课程必须有剩余名额才能申请换课",
     ],
+    courseType: "课程类型",
+    courseLevel: "课程级别",
+    apCredit: "AP学分",
+    honorCredit: "荣誉学分",
+    gradePoints: "绩点",
+    collegeBoardInfo: "大学理事会信息",
+    examDate: "考试日期",
   },
 
   // 换课申请
@@ -177,6 +248,13 @@ const zh = {
     timeSlot: "时间 / 日期",
     noCourses: "暂无课程",
     courseDetails: "课程详情",
+    monday: "周一",
+    tuesday: "周二",
+    wednesday: "周三",
+    thursday: "周四",
+    friday: "周五",
+    saturday: "周六",
+    sunday: "周日",
   },
 
   // 管理员
@@ -221,6 +299,35 @@ const zh = {
       "十一月",
       "十二月",
     ],
+  },
+
+  // 教育系统
+  education: {
+    ap: "AP课程",
+    honors: "荣誉课程",
+    general: "普通课程",
+    elective: "选修课程",
+    gradeLevel: {
+      freshman: "九年级",
+      sophomore: "十年级",
+      junior: "十一年级",
+      senior: "十二年级",
+    },
+    creditSystem: {
+      gpa: "平均绩点",
+      weightedGpa: "加权平均绩点",
+      apWeight: "AP课程权重",
+      honorsWeight: "荣誉课程权重",
+    },
+    apProgram: "AP课程体系",
+    apProgramDesc:
+      "美国大学理事会认证的大学预修课程，可获得大学学分，提高大学申请竞争力",
+    honorsProgram: "荣誉课程体系",
+    honorsProgramDesc:
+      "具有挑战性的进阶课程，为学术精英学生设计，强化核心学科能力",
+    electiveProgram: "选修课程体系",
+    electiveProgramDesc:
+      "丰富多样的选修课程，探索个人兴趣，拓展知识面，发掘潜能",
   },
 };
 
