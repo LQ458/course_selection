@@ -48,9 +48,8 @@ const LoginPage = () => {
   const [activeTab, setActiveTab] = useState("login");
   const router = useRouter();
 
-  const handleLogin = async (values: LoginFormValues) => {
+  const onFinish = async (values: any) => {
     setLoading(true);
-
     try {
       const result = await signIn("credentials", {
         username: values.username,
@@ -59,19 +58,30 @@ const LoginPage = () => {
       });
 
       if (result?.error) {
-        message.error("登录失败，请检查用户名和密码");
+        message.error("用户名或密码错误");
+        return;
+      }
+
+      // 获取用户信息
+      const userRes = await fetch("/api/auth/session");
+      const userData = await userRes.json();
+
+      if (!userData?.user) {
+        message.error("获取用户信息失败");
         return;
       }
 
       message.success("登录成功");
 
       // 根据用户角色重定向到不同页面
-      // 这里假设 NextAuth.js 会在 URL 中添加 callbackUrl 参数
-      // 如果没有，则默认重定向到课程页面
-      router.push("/courses");
+      if (userData.user.role === "admin") {
+        router.push("/admin/swap-requests");
+      } else {
+        router.push("/courses");
+      }
     } catch (error) {
-      message.error("登录失败，请稍后再试");
-      console.error(error);
+      console.error("登录错误:", error);
+      message.error("登录过程发生错误");
     } finally {
       setLoading(false);
     }
@@ -137,7 +147,7 @@ const LoginPage = () => {
             <Form
               name="login"
               initialValues={{ remember: true }}
-              onFinish={handleLogin}
+              onFinish={onFinish}
               layout="vertical"
               requiredMark={false}
             >

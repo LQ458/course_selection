@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { dbConnect } from "@/app/lib/dbConnect";
 import { SwapRequest } from "@/app/models";
 import { successResponse, errorResponse, handleApiError } from "@/app/lib/api";
-import { authOptions, isAdmin } from "@/app/lib/auth";
+import { authOptions, isAdmin } from "@/app/api/auth/[...nextauth]/route";
 import { SwapStatus } from "@/app/types";
 
 /**

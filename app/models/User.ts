@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import bcrypt from "bcrypt";
+import { compare, hash } from "bcryptjs";
 import { User } from "../types";
 
 export interface UserDocument extends Document, Omit<User, "_id"> {
@@ -69,12 +69,10 @@ const UserSchema = new Schema(
 
 // 密码加密中间件
 UserSchema.pre<UserDocument>("save", async function (next) {
-  // 只有在密码被修改时才重新加密
   if (!this.isModified("password")) return next();
 
   try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password as string, salt);
+    this.password = await hash(this.password as string, 12);
     next();
   } catch (error: any) {
     next(error);
@@ -86,8 +84,9 @@ UserSchema.methods.comparePassword = async function (
   candidatePassword: string,
 ): Promise<boolean> {
   try {
-    return await bcrypt.compare(candidatePassword, this.password);
+    return await compare(candidatePassword, this.password);
   } catch (error) {
+    console.error("密码比较错误:", error);
     return false;
   }
 };

@@ -1,286 +1,254 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  Typography,
   Table,
-  Tag,
   Button,
-  Space,
   Modal,
   Form,
-  Radio,
   Input,
+  Checkbox,
   message,
-  Spin,
+  Space,
+  Tooltip,
 } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import Layout from "@/app/components/Layout";
-import { SwapRequest } from "@/app/types";
-import axios from "axios";
+import type { TableProps } from "antd";
+import { SwapRequest, SwapStatus } from "@/app/types";
+import {
+  QuestionCircleOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 
-const { Title } = Typography;
-const { TextArea } = Input;
-
-// 模拟数据
-const mockRequests: SwapRequest[] = [
-  {
-    _id: "1",
-    studentId: "ST001",
-    studentName: "张三",
-    fromCourseId: "1",
-    fromCourseName: "计算机科学导论",
-    toCourseId: "2",
-    toCourseName: "微积分II",
-    reason: "我对微积分更感兴趣，而且时间安排更适合我的日程",
-    status: "pending",
-    createdAt: "2023-08-10T10:30:00Z",
-    updatedAt: "2023-08-10T10:30:00Z",
-  },
-  {
-    _id: "2",
-    studentId: "ST002",
-    studentName: "李四",
-    fromCourseId: "3",
-    fromCourseName: "高级英语写作",
-    toCourseId: "1",
-    toCourseName: "计算机科学导论",
-    reason: "我想转专业到计算机科学，因此需要学习该基础课程",
-    status: "approved",
-    createdAt: "2023-08-09T14:20:00Z",
-    updatedAt: "2023-08-11T09:15:00Z",
-    adminComment: "批准换课申请",
-  },
-  {
-    _id: "3",
-    studentId: "ST003",
-    studentName: "王五",
-    fromCourseId: "4",
-    fromCourseName: "物理学基础",
-    toCourseId: "3",
-    toCourseName: "高级英语写作",
-    reason: "我发现自己更适合文科类课程，想转向英语学习",
-    status: "rejected",
-    createdAt: "2023-08-08T11:45:00Z",
-    updatedAt: "2023-08-10T16:30:00Z",
-    adminComment: "物理学是您专业的必修课，不能替换",
-  },
-];
-
-const SwapRequestsPage = () => {
-  const [requests, setRequests] = useState<SwapRequest[]>(mockRequests);
+export default function SwapRequestsPage() {
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentRequest, setCurrentRequest] = useState<SwapRequest | null>(
+  const [data, setData] = useState<SwapRequest[]>([]);
+  const [selectedRequest, setSelectedRequest] = useState<SwapRequest | null>(
     null,
   );
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
-  // 模拟从API获取数据
-  useEffect(() => {
-    // 实际应用中从API获取数据
-    // fetchRequests();
-  }, []);
-
-  // 处理查看详情
-  const handleViewDetails = (request: SwapRequest) => {
-    setCurrentRequest(request);
-    form.setFieldsValue({
-      status: request.status,
-      adminComment: request.adminComment || "",
-    });
-    setModalVisible(true);
-  };
-
-  // 处理更新状态
-  const handleUpdateStatus = async (values: any) => {
-    if (!currentRequest) return;
-
-    setLoading(true);
+  const fetchData = async () => {
     try {
-      // 实际应用中，这里应该调用API
-      // const response = await axios.patch('/api/swaps', {
-      //   id: currentRequest._id,
-      //   status: values.status,
-      //   adminComment: values.adminComment
-      // });
-
-      // 模拟API响应
-      setTimeout(() => {
-        // 更新本地状态
-        const updatedRequests = requests.map((req) =>
-          req._id === currentRequest._id
-            ? {
-                ...req,
-                status: values.status,
-                adminComment: values.adminComment,
-                updatedAt: new Date().toISOString(),
-              }
-            : req,
-        );
-
-        setRequests(updatedRequests);
-        message.success("申请状态已更新");
-        setModalVisible(false);
-        setLoading(false);
-      }, 500);
+      setLoading(true);
+      const res = await fetch("/api/admin/swaps");
+      const json = await res.json();
+      if (json.success) {
+        setData(json.data.swapRequests);
+      }
     } catch (error) {
-      console.error("更新失败:", error);
-      message.error("更新失败，请重试");
+      message.error("获取数据失败");
+    } finally {
       setLoading(false);
     }
   };
 
-  // 表格列定义
-  const columns = [
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleReview = (record: SwapRequest) => {
+    setSelectedRequest(record);
+    setIsModalVisible(true);
+  };
+
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const { action, reviewNote, checkResults } = values;
+
+      setLoading(true);
+
+      const res = await fetch(`/api/admin/swaps/${selectedRequest?._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, reviewNote, checkResults }),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        message.success({
+          content: `${action === "approve" ? "通过" : "拒绝"}申请成功`,
+          duration: 3,
+        });
+        setIsModalVisible(false);
+        form.resetFields();
+        fetchData();
+      } else {
+        message.error({
+          content: json.error || "操作失败",
+          duration: 3,
+        });
+      }
+    } catch (error) {
+      message.error({
+        content: "操作失败，请重试",
+        duration: 3,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const columns: TableProps<SwapRequest>["columns"] = [
     {
-      title: "学生",
-      dataIndex: "studentName",
-      key: "studentName",
-    },
-    {
-      title: "学号",
-      dataIndex: "studentId",
-      key: "studentId",
+      title: "学生姓名",
+      dataIndex: ["student", "name"],
     },
     {
       title: "原课程",
-      dataIndex: "fromCourseName",
-      key: "fromCourseName",
+      dataIndex: ["originalCourse", "name"],
     },
     {
       title: "目标课程",
-      dataIndex: "toCourseName",
-      key: "toCourseName",
+      dataIndex: ["targetCourse", "name"],
     },
     {
-      title: "申请时间",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (text: string) => new Date(text).toLocaleString(),
+      title: "申请原因",
+      dataIndex: "reason",
     },
     {
       title: "状态",
       dataIndex: "status",
-      key: "status",
-      render: (status: string) => {
-        let color = "blue";
-        let text = "待处理";
-
-        if (status === "approved") {
-          color = "green";
-          text = "已批准";
-        } else if (status === "rejected") {
-          color = "red";
-          text = "已拒绝";
-        }
-
-        return <Tag color={color}>{text}</Tag>;
+      render: (status: SwapStatus) => {
+        const statusMap = {
+          [SwapStatus.PENDING]: "待审批",
+          [SwapStatus.APPROVED]: "已通过",
+          [SwapStatus.REJECTED]: "已拒绝",
+        };
+        return statusMap[status];
       },
     },
     {
       title: "操作",
       key: "action",
-      render: (_: any, record: SwapRequest) => (
-        <Space size="middle">
-          <Button
-            type="primary"
-            size="small"
-            onClick={() => handleViewDetails(record)}
-          >
-            查看详情
-          </Button>
-        </Space>
-      ),
+      render: (_, record) =>
+        record.status === SwapStatus.PENDING && (
+          <Space size="middle">
+            <Tooltip title="点击查看详情并进行审批">
+              <Button type="primary" onClick={() => handleReview(record)}>
+                审批
+              </Button>
+            </Tooltip>
+          </Space>
+        ),
     },
   ];
 
   return (
-    <Layout>
+    <div className="p-6">
       <div className="mb-6">
-        <Title level={2}>换课申请管理</Title>
-        <p className="text-gray-500">管理学生提交的换课申请，进行审批操作</p>
+        <h1 className="text-2xl font-bold">换课申请管理</h1>
+        <p className="text-gray-600 mt-2">
+          <QuestionCircleOutlined className="mr-2" />
+          在这里您可以审批学生的换课申请。点击"审批"按钮查看详情并进行审核。
+        </p>
       </div>
 
       <Table
         columns={columns}
-        dataSource={requests}
+        dataSource={data}
         rowKey="_id"
-        pagination={{ pageSize: 10 }}
+        loading={loading}
       />
 
-      {currentRequest && (
-        <Modal
-          title="换课申请详情"
-          open={modalVisible}
-          onCancel={() => setModalVisible(false)}
-          footer={null}
-        >
-          <div className="mb-6">
-            <p>
-              <strong>学生:</strong> {currentRequest.studentName} (
-              {currentRequest.studentId})
-            </p>
-            <p>
-              <strong>从课程:</strong> {currentRequest.fromCourseName}
-            </p>
-            <p>
-              <strong>至课程:</strong> {currentRequest.toCourseName}
-            </p>
-            <p>
-              <strong>申请理由:</strong> {currentRequest.reason}
-            </p>
-            <p>
-              <strong>申请时间:</strong>{" "}
-              {new Date(currentRequest.createdAt).toLocaleString()}
-            </p>
-
-            {currentRequest.status !== "pending" && (
-              <p>
-                <strong>最后更新:</strong>{" "}
-                {new Date(currentRequest.updatedAt).toLocaleString()}
-              </p>
-            )}
-          </div>
-
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleUpdateStatus}
-            initialValues={{
-              status: currentRequest.status,
-              adminComment: currentRequest.adminComment || "",
+      <Modal
+        title="审批换课申请"
+        open={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={() => {
+          Modal.confirm({
+            title: "确认取消",
+            content: "您确定要取消当前的审批操作吗？已填写的内容将不会保存。",
+            onOk: () => {
+              setIsModalVisible(false);
+              form.resetFields();
+            },
+          });
+        }}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => {
+              Modal.confirm({
+                title: "确认取消",
+                content:
+                  "您确定要取消当前的审批操作吗？已填写的内容将不会保存。",
+                onOk: () => {
+                  setIsModalVisible(false);
+                  form.resetFields();
+                },
+              });
             }}
           >
-            <Form.Item
-              name="status"
-              label="申请状态"
-              rules={[{ required: true, message: "请选择申请状态" }]}
+            取消
+          </Button>,
+          <Space key="actions" size="middle">
+            <Button
+              danger
+              icon={<CloseOutlined />}
+              onClick={() => {
+                form.setFieldsValue({ action: "reject" });
+                Modal.confirm({
+                  title: "确认拒绝",
+                  content: "您确定要拒绝这个换课申请吗？",
+                  okText: "确认拒绝",
+                  okButtonProps: { danger: true },
+                  onOk: handleModalOk,
+                });
+              }}
             >
-              <Radio.Group>
-                <Radio value="pending">待处理</Radio>
-                <Radio value="approved">批准</Radio>
-                <Radio value="rejected">拒绝</Radio>
-              </Radio.Group>
-            </Form.Item>
+              拒绝申请
+            </Button>
+            <Button
+              type="primary"
+              icon={<CheckOutlined />}
+              onClick={() => {
+                form.setFieldsValue({ action: "approve" });
+                Modal.confirm({
+                  title: "确认通过",
+                  content: "您确定要通过这个换课申请吗？",
+                  onOk: handleModalOk,
+                });
+              }}
+            >
+              通过申请
+            </Button>
+          </Space>,
+        ]}
+      >
+        <Form form={form} layout="vertical">
+          <div className="bg-gray-50 p-4 mb-4 rounded">
+            <h3 className="font-bold mb-2">申请信息</h3>
+            <p>学生: {selectedRequest?.student.name}</p>
+            <p>原课程: {selectedRequest?.originalCourse.name}</p>
+            <p>目标课程: {selectedRequest?.targetCourse.name}</p>
+            <p>申请原因: {selectedRequest?.reason}</p>
+          </div>
 
-            <Form.Item name="adminComment" label="管理员备注">
-              <TextArea rows={4} placeholder="请输入处理意见或备注信息..." />
-            </Form.Item>
-
-            <Form.Item>
-              <div className="flex justify-end gap-2">
-                <Button onClick={() => setModalVisible(false)}>取消</Button>
-                <Button type="primary" htmlType="submit" loading={loading}>
-                  更新状态
-                </Button>
-              </div>
-            </Form.Item>
-          </Form>
-        </Modal>
-      )}
-    </Layout>
+          <Form.Item
+            name={["checkResults", "prerequisitesNotFulfilled"]}
+            valuePropName="checked"
+          >
+            <Checkbox>先修课程未满足</Checkbox>
+          </Form.Item>
+          <Form.Item name={["checkResults", "noSpace"]} valuePropName="checked">
+            <Checkbox>目标课程已满</Checkbox>
+          </Form.Item>
+          <Form.Item
+            name="reviewNote"
+            label="审批备注"
+            tooltip="请填写审批意见，将作为反馈显示给学生"
+          >
+            <Input.TextArea
+              placeholder="请输入审批意见..."
+              showCount
+              maxLength={200}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
   );
-};
-
-export default SwapRequestsPage;
+}

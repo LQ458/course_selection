@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { dbConnect } from "@/app/lib/dbConnect";
 import { SwapRequest, Course, User } from "@/app/models";
 import { successResponse, errorResponse, handleApiError } from "@/app/lib/api";
-import { authOptions, isAdmin } from "@/app/lib/auth";
+import { authOptions, isAdmin } from "@/app/api/auth/[...nextauth]/route";
 import { SwapStatus } from "@/app/types";
 import mongoose from "mongoose";
 
@@ -56,7 +56,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     await dbConnect();
 
     const body = await request.json();
-    const { action, reviewNote } = body;
+    const { action, reviewNote, checkResults } = body;
 
     if (!action || !["approve", "reject"].includes(action)) {
       return errorResponse("无效的审批操作", 400);
@@ -74,8 +74,21 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       return errorResponse("该申请已被处理", 400);
     }
 
+    // 验证并更新状态
     const status =
       action === "approve" ? SwapStatus.APPROVED : SwapStatus.REJECTED;
+
+    // 构建审批备注
+    let adminComment = `${action === "approve" ? "Approved" : "Rejected"}: `;
+    if (checkResults.prerequisitesNotFulfilled) {
+      adminComment += "Prerequisites not fulfilled. ";
+    }
+    if (checkResults.noSpace) {
+      adminComment += "No space available. ";
+    }
+    if (reviewNote) {
+      adminComment += reviewNote;
+    }
 
     // 开启事务
     const session2 = await mongoose.startSession();
@@ -84,7 +97,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     try {
       // 更新申请状态
       swapRequest.status = status;
-      swapRequest.reviewNote = reviewNote || "";
+      swapRequest.adminComment = adminComment;
       swapRequest.reviewedBy = adminId;
       swapRequest.reviewedAt = new Date();
 
